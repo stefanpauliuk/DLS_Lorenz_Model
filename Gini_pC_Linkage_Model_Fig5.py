@@ -208,16 +208,6 @@ ax2.set_xlim([0, 75000])
 ax2.set_ylim([0.2, 0.8])
 ax2.grid()
 
-# scatter plot of maxmin_ratio empirical vs. model
-# ax3.scatter(pC_GNI, maxminr)
-# ax3.fill_between([0,1e5], [mdr_min,mdr_min], [mdr_max,mdr_max], linestyle = '-', facecolor = '0.75', linewidth = 0.5)
-# ax3.set_title('Scatter plot of empirical (dots) and model-based \n (range) top 10% to bottom 10% income ratios.', fontsize = 15)
-# ax3.set_ylabel('top 10% to bottom 10% income ratio', fontsize = 15)
-# ax3.set_xlabel('per capita GNI, in 2021 EUR', fontsize = 15)
-# ax3.legend(['Countries','DLS Model range'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
-# ax3.set_xlim([0, 75000])
-# ax3.set_ylim([0, 850])
-
 # plot DLS gap and excessive consumption as fraction of GNI
 ax3.scatter(pC_GNI, np.asarray(DLS_Gap))
 ax3.scatter(pC_GNI, ExcessIncome, color = ccolors[0])
@@ -233,7 +223,7 @@ ax3.grid()
 ax4.set_prop_cycle('color', np.array([[0.72, 0.8, 0.89, 1]]))
 a1 = ax4.plot(pop,LC_Norm_W)
 ax = ax4.plot([0,1], [0,1], linestyle = '--', color ='k', linewidth = 1)
-ax4.set_title('(d) Empirical (blue) vs model-based \n (green) Lorenz curves for wealth.', fontsize = 15)
+ax4.set_title('(d) Empirical Lorenz curves for wealth.', fontsize = 15)
 ax4.set_ylabel('Cumulative fraction of total income, %.', fontsize = 15)
 ax4.set_xlabel('Cumulative fraction of total population, %.', fontsize = 15)
 ax4.legend([a1[0],ax[0]],['Countries','Equal distribution'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper left')# ,bbox_to_anchor=(1.91, 1)) 
@@ -243,7 +233,7 @@ ax4.grid()
 
 # scatter plot of G_emp_W
 ax5.scatter(pC_NPW/1000, G_emp_W)
-ax5.set_title('(e) Scatter plot of empirical (dots) and \n model-based (range) Gini coefficients for wealth.', fontsize = 15)
+ax5.set_title('(e) Scatter plot of empirical Gini coefficients for wealth.', fontsize = 15)
 ax5.set_ylabel('Gini coefficient', fontsize = 15)
 ax5.set_xlabel('per capita net pers. wealth, in 2021 kEUR', fontsize = 15)
 ax5.legend(['Countries'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
@@ -266,27 +256,74 @@ plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
 plt.show()
 
-fig.savefig(os.path.join(datapath,'Fig5_WID_Eval.png'), dpi=200, bbox_inches='tight')
+fig.savefig(os.path.join(datapath,'Fig5.png'), dpi=200, bbox_inches='tight')
 
+# Export central results to allow for country identification
 
-# # plot DLS gap to excessive consumption ratio ratio
-# fig, ax3x = plt.subplots(1, 1, sharex=False, gridspec_kw={'hspace': 0.3, 'wspace': 0.35},figsize=(8,8))
-# ax = ax3x.scatter(pC_GNI, np.asarray(DLS_Gap)/ExcessIncome)
-# ax3x.plot([0,75000], [1,1], linestyle = '--', color ='k', linewidth = 1)
-# ax3x.set_title('DLS gap to exessive consumption ratio, \n with G = 0.30 as reference.', fontsize = 15)
-# ax3x.set_ylabel('Ratio', fontsize = 15)
-# ax3x.set_xlabel('per capita GNI, in 2021 EUR', fontsize = 15)
-# ax3x.legend([ax],['DLS gap to Excessive income ratio'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
-# ax3x.set_xlim([0, 75000])
-# ax3x.set_ylim([0.5, 3])
-# ax3x.grid()
+rbook = openpyxl.Workbook() # Export other model results, calibration values, flags, etc.
+wsx = rbook.active
+wsx.title = 'Results'
 
-# plt.xticks(fontsize=15)
-# plt.yticks(fontsize=15)
-# plt.show()
+# Income data
+wsx.cell(row=1, column=2).value = 'Regions'
+wsx.cell(row=1, column=2).font = openpyxl.styles.Font(bold=True)
 
-# fig.savefig(os.path.join(datapath,'Fig5_WID_Eval_2.png'), dpi=200, bbox_inches='tight')
+wsx.cell(row=1, column=3).value = 'Lorenz curve (normalized) for income, Fig. 5(a)'
+wsx.cell(row=1, column=3).font = openpyxl.styles.Font(bold=True)
 
+for i in range(0,169):
+    wsx.cell(row=i+2, column=2).value = R_labelsb[i]
+for i in range(0,11):
+    wsx.cell(row=1, column=4+i).value = i*0.1
+    for j in range(0,169):
+        wsx.cell(row=j+2, column=4+i).value = LC_Norm[i,j]
+        
+wsx.cell(row=1, column=16).value = 'per capita GNI, 2021 EUR, Fig. 5(b)'
+wsx.cell(row=1, column=16).font = openpyxl.styles.Font(bold=True)
+wsx.cell(row=1, column=17).value = 'Gini coefficient for income, Fig. 5(b)'
+wsx.cell(row=1, column=17).font = openpyxl.styles.Font(bold=True)  
+wsx.cell(row=1, column=18).value = 'ratio of income for highest vs. lowest decile, Fig. 5 (additonal result)'
+wsx.cell(row=1, column=18).font = openpyxl.styles.Font(bold=True)  
+wsx.cell(row=1, column=19).value = 'DLS gap as fraction of GNI, Fig. 5(c)'
+wsx.cell(row=1, column=19).font = openpyxl.styles.Font(bold=True) 
+wsx.cell(row=1, column=20).value = 'Exessive consumption as fraction of GNI, Fig. 5(c)'
+wsx.cell(row=1, column=20).font = openpyxl.styles.Font(bold=True) 
+wsx.cell(row=1, column=21).value = 'DLS gap to exessive consumption ratio, Fig. 5(f)'
+wsx.cell(row=1, column=21).font = openpyxl.styles.Font(bold=True) 
+
+for i in range(0,169):
+    wsx.cell(row=i+2, column=16).value = pC_GNI[i]
+    wsx.cell(row=i+2, column=17).value = G_emp[i]
+    wsx.cell(row=i+2, column=18).value = maxminr[i]
+    wsx.cell(row=i+2, column=19).value = np.asarray(DLS_Gap)[i]
+    wsx.cell(row=i+2, column=20).value = ExcessIncome[i]
+    wsx.cell(row=i+2, column=21).value = np.asarray(DLS_Gap)[i]/ExcessIncome[i]
+    
+# Wealth data    
+wsx.cell(row=1, column=25).value = 'Regions'
+wsx.cell(row=1, column=25).font = openpyxl.styles.Font(bold=True)
+
+wsx.cell(row=1, column=26).value = 'Empirical Lorenz curves for wealth, Fig. 5(d)'
+wsx.cell(row=1, column=26).font = openpyxl.styles.Font(bold=True)
+
+for i in range(0,180):
+    wsx.cell(row=i+2, column=25).value = R_labelsz[i]
+for i in range(0,11):
+    wsx.cell(row=1, column=27+i).value = i*0.1
+    for j in range(0,180):
+        wsx.cell(row=j+2, column=27+i).value = LC_Norm_W[i,j]    
+
+wsx.cell(row=1, column=40).value = 'Per capita net pers. wealth, in 2021 kEUR, Fig. 5(e)'
+wsx.cell(row=1, column=40).font = openpyxl.styles.Font(bold=True) 
+wsx.cell(row=1, column=41).value = 'Gini coefficient for wealth, Fig. 5(e)'
+wsx.cell(row=1, column=41).font = openpyxl.styles.Font(bold=True)     
+    
+for i in range(0,180):
+    wsx.cell(row=i+2, column=40).value = pC_NPW[i]
+    wsx.cell(row=i+2, column=41).value = G_emp_W[i]
+
+    
+rbook.save(os.path.join(datapath,'AddResults.xlsx'))
 
 # End
 
