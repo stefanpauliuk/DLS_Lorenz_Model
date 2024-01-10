@@ -143,6 +143,12 @@ d_LC_33 = G_33[1]/0.1 # LC slope for lowest decile: roughly the dls: 0.5 of the 
 dLC_30min = G_30[1]/0.1 # representative DLS slope
 dLC_30max = (1-G_30[-2])/0.1
 
+# For the survey-based ideal wealth distribution by Starmans and Bloom (2017):
+pop2 = [0,0.2,0.4,0.6,0.8,1]
+G_Id = [0,0.11,0.245,0.46,0.68,1]
+G_SB = 1 - 2 * np.trapz(G_Id,x = pop2)  # 0.202
+LC_SB= [0, 0.0667, 0.136, 0.208, 0.285, 0.365, 0.452, 0.546, 0.652, 0.779, 1] # model curve
+
 # Calculate Lorenz Curves, GNI, pC_GDP, and Gini Coefficients for income:
 LC_Total = IncData_b.cumsum(axis=0)
 LC_Norm  = np.divide(LC_Total,np.einsum('a,b->ba',LC_Total[-1,:],np.ones(10)))
@@ -203,8 +209,8 @@ ax2.fill_between([0,1e5], [G_min,G_min], [G_max,G_max], linestyle = '-', facecol
 ax2.set_title('(b) Scatter plot of empirical (dots) and \n model-based (range) Gini coefficients for income.', fontsize = 15)
 ax2.set_ylabel('Gini coefficient', fontsize = 15)
 ax2.set_xlabel('per capita GNI, in 2021 EUR', fontsize = 15)
-ax2.legend(['Countries','DLS Model range'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
 ax2.set_xlim([0, 75000])
+ax2.legend(['Countries','DLS Model range G ε [0.25;0.33]'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
 ax2.set_ylim([0.2, 0.8])
 ax2.grid()
 
@@ -214,7 +220,7 @@ ax3.scatter(pC_GNI, ExcessIncome, color = ccolors[0])
 ax3.set_title('(c) DLS gap and exessive consumption \n as fraction of GNI with G = 0.30 as reference.', fontsize = 15)
 ax3.set_ylabel('Fraction of GNI', fontsize = 15)
 ax3.set_xlabel('per capita GNI, in 2021 EUR', fontsize = 15)
-ax3.legend(['DLS gap for G = 0.3','Excessive income'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
+ax3.legend(['Countries\' DLS gap for G = 0.3','Excessive income by country'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
 ax3.set_xlim([0, 75000])
 ax3.set_ylim([0, 0.4])
 ax3.grid()
@@ -223,10 +229,11 @@ ax3.grid()
 ax4.set_prop_cycle('color', np.array([[0.72, 0.8, 0.89, 1]]))
 a1 = ax4.plot(pop,LC_Norm_W)
 ax = ax4.plot([0,1], [0,1], linestyle = '--', color ='k', linewidth = 1)
+ab = ax4.plot(pop,LC_SB,color = 'g', linewidth = 1.5)
 ax4.set_title('(d) Empirical Lorenz curves for wealth.', fontsize = 15)
 ax4.set_ylabel('Cumulative fraction of total income, %.', fontsize = 15)
 ax4.set_xlabel('Cumulative fraction of total population, %.', fontsize = 15)
-ax4.legend([a1[0],ax[0]],['Countries','Equal distribution'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper left')# ,bbox_to_anchor=(1.91, 1)) 
+ax4.legend([a1[0],ax[0],ab[0]],['Countries','Equal distribution','DLS model for G = 0.20'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper left')# ,bbox_to_anchor=(1.91, 1)) 
 ax4.set_xlim([0, 1])
 ax4.set_ylim([0, 1])
 ax4.grid()
@@ -237,6 +244,7 @@ ax5.set_title('(e) Scatter plot of empirical Gini coefficients for wealth.', fon
 ax5.set_ylabel('Gini coefficient', fontsize = 15)
 ax5.set_xlabel('per capita net pers. wealth, in 2021 kEUR', fontsize = 15)
 ax5.legend(['Countries'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
+ax5.text(235,0.87, 'G = 0.20 not shown', fontsize=16, fontweight='normal', rotation = 0) 
 ax5.set_xlim([-20, 400])
 ax5.set_ylim([0.6, 0.92])
 ax5.grid()
@@ -245,9 +253,9 @@ ax5.grid()
 ax = ax6.scatter(pC_GNI, np.asarray(DLS_Gap)/ExcessIncome)
 ax6.plot([0,75000], [1,1], linestyle = '--', color ='k', linewidth = 1)
 ax6.set_title('(f) DLS gap to exessive consumption ratio, \n with G = 0.30 as reference.', fontsize = 15)
-ax6.set_ylabel('Ratio', fontsize = 15)
+ax6.set_ylabel('DLS gap to Excessive income ratio', fontsize = 15)
 ax6.set_xlabel('per capita GNI, in 2021 EUR', fontsize = 15)
-ax6.legend([ax],['DLS gap to Excessive income ratio'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
+ax6.legend([ax],['Countries'], shadow = False, prop={'size':14}, ncol=1, loc = 'upper right')# ,bbox_to_anchor=(1.91, 1)) 
 ax6.set_xlim([0, 75000])
 ax6.set_ylim([0.5, 3])
 ax6.grid()
